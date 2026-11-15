@@ -8,36 +8,37 @@
 <meta property="og:title" content="Tu recepcionista de prueba">
 <meta property="og:description" content="Escríbele como lo haría un paciente: pedir, cambiar o cancelar una cita.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#008069">
+<meta name="theme-color" content="#FFFFFF">
+<meta http-equiv="Cache-Control" content="no-cache">
 <style>
 :root{
-  --verde:#008069;--verde-btn:#00A884;--fondo:#EFEAE2;--entrante:#FFFFFF;--saliente:#D9FDD3;
+  --verde:#1DAB61;--verde-btn:#1DAB61;--fondo:#F2EFE9;--entrante:#FFFFFF;--saliente:#D9FDD3;
   --texto:#111B21;--texto-2:#667781;--aviso:#FFEECD;--aviso-texto:#54656F;--check:#53BDEB;--linea:#E9EDEF;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:#D1D7DB;color:var(--texto);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{background:#D1D7DB;color:var(--texto);font-family:Roboto,"Helvetica Neue",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 .app{max-width:500px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--fondo);position:relative;overflow:hidden}
 @media (min-width:540px){.app{height:calc(100dvh - 40px);margin:20px auto;border-radius:12px;box-shadow:0 6px 24px rgba(11,20,26,.18)}}
 
 /* Cabecera */
-.cab{background:var(--verde);color:#fff;display:flex;align-items:center;gap:6px;padding:8px 10px 8px 4px;padding-top:max(8px,env(safe-area-inset-top));flex-shrink:0;min-height:58px}
-.ico{width:38px;height:38px;display:grid;place-items:center;color:#fff;opacity:.95;flex-shrink:0}
-.avatar{width:40px;height:40px;border-radius:50%;background:#DFE5E7;color:#fff;display:grid;place-items:center;font-weight:600;font-size:15px;flex-shrink:0;background:linear-gradient(135deg,#25A88E,#128C7E)}
+.cab{background:#fff;color:#0B141A;border-bottom:1px solid #E9EDEF;display:flex;align-items:center;gap:6px;padding:8px 10px 8px 4px;padding-top:max(8px,env(safe-area-inset-top));flex-shrink:0;min-height:58px}
+.ico{width:42px;height:42px;display:grid;place-items:center;color:#0B141A;flex-shrink:0}
+.avatar{width:44px;height:44px;border-radius:50%;background:#DFE5E7;color:#fff;display:grid;place-items:center;font-weight:500;font-size:16px;flex-shrink:0;background:linear-gradient(135deg,#25A88E,#128C7E)}
 .cab-txt{min-width:0;flex:1;padding-left:6px}
-.cab-nombre{font-size:16.5px;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cab-estado{font-size:12.5px;opacity:.85;margin-top:1px}
+.cab-nombre{font-size:19px;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cab-estado{font-size:13.5px;color:#667781;margin-top:1px}
 
 /* Chat */
 .chat{flex:1;overflow-y:auto;padding:10px 7% 8px;display:flex;flex-direction:column;gap:2px;scroll-behavior:smooth;
   background-color:var(--fondo);
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23D6CFC4' stroke-width='1.4' opacity='.55'%3E%3Ccircle cx='18' cy='20' r='7'/%3E%3Cpath d='M70 14h18v12H70z'/%3E%3Cpath d='M30 70c6-8 14-8 20 0'/%3E%3Cpath d='M96 64l8 8-8 8-8-8z'/%3E%3Cpath d='M58 100h14M65 93v14'/%3E%3Ccircle cx='104' cy='106' r='4'/%3E%3Cpath d='M10 104l8-8 8 8'/%3E%3C/g%3E%3C/svg%3E");}
-.dia{align-self:center;background:#fff;color:var(--texto-2);font-size:12px;padding:5px 12px;border-radius:7px;margin:6px 0 8px;box-shadow:0 1px .5px rgba(11,20,26,.13);text-transform:uppercase;letter-spacing:.02em}
-.sistema{align-self:center;background:var(--aviso);color:var(--aviso-texto);font-size:12.5px;line-height:1.4;text-align:center;padding:6px 12px;border-radius:7px;margin:0 0 10px;max-width:92%;box-shadow:0 1px .5px rgba(11,20,26,.13)}
+.dia{align-self:center;background:#fff;color:var(--texto-2);font-size:13px;padding:5px 12px;border-radius:7px;margin:6px 0 8px;box-shadow:0 1px .5px rgba(11,20,26,.13);text-transform:uppercase;letter-spacing:.02em}
+.sistema{align-self:center;background:var(--aviso);color:var(--aviso-texto);font-size:13.5px;line-height:1.4;text-align:center;padding:6px 12px;border-radius:7px;margin:0 0 10px;max-width:92%;box-shadow:0 1px .5px rgba(11,20,26,.13)}
 .sistema svg{vertical-align:-2px;margin-right:3px}
-.msg{position:relative;max-width:85%;padding:6px 8px 8px 9px;border-radius:8px;font-size:14.6px;line-height:1.36;white-space:pre-wrap;word-wrap:break-word;box-shadow:0 1px .5px rgba(11,20,26,.13);margin-top:2px;animation:entra .15s ease-out}
+.msg{position:relative;max-width:85%;padding:7px 10px 9px 11px;border-radius:10px;font-size:17px;line-height:1.4;font-weight:400;white-space:pre-wrap;word-wrap:break-word;box-shadow:0 1px .5px rgba(11,20,26,.13);margin-top:2px;animation:entra .15s ease-out}
 .msg.primera{margin-top:8px}
-.msg .meta{float:right;margin:6px 0 -4px 10px;font-size:11px;color:var(--texto-2);display:inline-flex;align-items:center;gap:3px;line-height:1}
+.msg .meta{float:right;margin:8px 0 -4px 12px;font-size:12px;color:var(--texto-2);display:inline-flex;align-items:center;gap:3px;line-height:1}
 .in{background:var(--entrante);align-self:flex-start}
 .out{background:var(--saliente);align-self:flex-end}
 .in.primera{border-top-left-radius:0}
@@ -51,34 +52,34 @@ body{background:#D1D7DB;color:var(--texto);font-family:-apple-system,BlinkMacSys
 @keyframes bota{0%,60%,100%{transform:none;opacity:.5}30%{transform:translateY(-3px);opacity:1}}
 
 /* Tarjeta de cita: como una ficha de agenda dentro del chat */
-.cita{align-self:center;width:94%;margin:10px 0 6px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(11,20,26,.16);animation:entra .2s ease-out}
-.cita-tit{background:#E7F8F3;color:var(--verde);font-size:12.5px;font-weight:600;padding:8px 12px;display:flex;align-items:center;gap:6px}
+.cita{align-self:center;width:94%;flex-shrink:0;margin:10px 0 6px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(11,20,26,.16)}
+.cita-tit{background:#E7F8F3;color:#008069;font-size:14px;font-weight:600;padding:8px 12px;display:flex;align-items:center;gap:6px}
 .cita-cuerpo{padding:4px 12px 10px}
-.cita-fila{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:7px 0;border-bottom:1px solid var(--linea)}
+.cita-fila{display:flex;justify-content:space-between;gap:12px;font-size:15px;padding:7px 0;border-bottom:1px solid var(--linea)}
 .cita-fila:last-child{border-bottom:0}
 .cita-fila span:first-child{color:var(--texto-2)}
 .cita-fila span:last-child{text-align:right;font-weight:500}
-.cita-pie{font-size:12px;color:var(--texto-2);padding:0 12px 10px;line-height:1.4}
+.cita-pie{font-size:13.5px;color:var(--texto-2);padding:0 12px 10px;line-height:1.4}
 
 /* Sugerencias */
 .sug{display:flex;gap:6px;overflow-x:auto;padding:6px 8px 0;flex-shrink:0;scrollbar-width:none;background:var(--fondo)}
 .sug::-webkit-scrollbar{display:none}
-.sug button{flex-shrink:0;border:0;background:#fff;color:var(--verde);border-radius:18px;padding:8px 13px;font:inherit;font-size:13.5px;cursor:pointer;box-shadow:0 1px .5px rgba(11,20,26,.13)}
+.sug button{flex-shrink:0;border:0;background:#fff;color:#008069;border-radius:18px;padding:9px 14px;font:inherit;font-size:15px;cursor:pointer;box-shadow:0 1px .5px rgba(11,20,26,.13)}
 .sug button:active{background:#F0F2F5}
 
 /* Barra de escribir */
 .barra{display:flex;gap:6px;padding:6px 6px;padding-bottom:max(6px,env(safe-area-inset-bottom));align-items:flex-end;flex-shrink:0;background:var(--fondo)}
-.caja{flex:1;display:flex;align-items:flex-end;background:#fff;border-radius:24px;padding:4px 6px 4px 14px;box-shadow:0 1px .5px rgba(11,20,26,.13);min-height:46px}
-.caja textarea{flex:1;resize:none;border:0;padding:9px 0;font:inherit;font-size:15.5px;line-height:1.3;max-height:110px;background:transparent;color:var(--texto);outline:none}
+.caja{flex:1;display:flex;align-items:flex-end;background:#fff;border-radius:28px;padding:4px 8px 4px 18px;box-shadow:0 1px .5px rgba(11,20,26,.13);min-height:46px}
+.caja textarea{flex:1;resize:none;border:0;padding:10px 0;font:inherit;font-size:18px;line-height:1.3;max-height:110px;background:transparent;color:var(--texto);outline:none}
 .caja textarea::placeholder{color:#8696A0}
-.barra button{width:46px;height:46px;border-radius:50%;border:0;background:var(--verde-btn);color:#fff;display:grid;place-items:center;cursor:pointer;flex-shrink:0}
+.barra button{width:52px;height:52px;border-radius:50%;border:0;background:var(--verde-btn);color:#fff;display:grid;place-items:center;cursor:pointer;flex-shrink:0}
 .barra button:disabled{opacity:.55}
 
 /* Pie: hablar con Jorge */
 .pie{background:#fff;border-top:1px solid var(--linea);padding:9px 12px;padding-bottom:max(9px,env(safe-area-inset-bottom));display:none;align-items:center;gap:10px;flex-shrink:0}
 .pie p{font-size:12.5px;color:var(--texto-2);line-height:1.35;flex:1}
 .pie a{background:var(--verde-btn);color:#fff;text-decoration:none;font-weight:600;font-size:13.5px;padding:9px 14px;border-radius:20px;white-space:nowrap}
-.firma{text-align:center;font-size:10.5px;color:#8696A0;padding:0 0 6px;background:var(--fondo)}
+.firma{text-align:center;font-size:11.5px;color:#8696A0;padding:0 0 6px;background:var(--fondo)}
 
 /* Enlace no válido */
 .vacio{flex:1;display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:32px;gap:10px;background:#F0F2F5}
@@ -244,7 +245,7 @@ body{background:#D1D7DB;color:var(--texto);font-family:-apple-system,BlinkMacSys
         escribiendo.style.display = "none";
         $("estado").textContent = "en línea";
         burbuja(d && d.respuesta ? d.respuesta : "Perdona, se me ha cortado un momento. ¿Me lo repites?", "in");
-        if (d && d.cita) tarjeta(d.cita);
+        if (d && d.cita) { try { tarjeta(d.cita); } catch (err) { burbuja("Así te llegaría a ti: " + [d.cita.nombre, d.cita.motivo, d.cita.cuando].filter(Boolean).join(" · "), "in"); } }
         if (d && d.fin) { texto.disabled = true; texto.placeholder = "Prueba terminada"; }
       })
       .catch(function () {
