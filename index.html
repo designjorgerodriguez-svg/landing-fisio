@@ -701,6 +701,7 @@ footer img{height:62px;width:auto;margin-left:-16px}
               <label><input type="radio" name="equipo" id="f_eq3" value="4+"><span>4 o más</span></label>
             </div>
           </fieldset>
+          <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label for="f_web">No rellenar</label><input type="text" id="f_web" name="web" tabindex="-1" autocomplete="off"></div>
           <label class="acepto cf todo"><input type="checkbox" id="f_priv" required><span>He leído y acepto la <a href="https://www.elevationmove.com/politica-de-privacidad" target="_blank" rel="noopener">política de privacidad</a>. Usaremos estos datos solo para gestionar esta cita.</span></label>
         </div>
         <div class="res-pie">
@@ -713,7 +714,7 @@ footer img{height:62px;width:auto;margin-left:-16px}
         <i><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></i>
         <h3>Diagnóstico reservado</h3>
         <p>Nos vemos: <b id="finTxt"></b>. Te llegará la confirmación con el enlace de la videollamada.</p>
-        <span class="nota">Vista previa del diseño. Este formulario todavía no guarda la reserva.</span>
+        <span class="nota" id="notaDemo" hidden>Vista previa del diseño. Aquí la reserva no se guarda: funciona en fisio.elevationmove.com.</span>
         <button type="button" id="otra">Volver al calendario</button>
       </div>
     </div>
@@ -934,24 +935,31 @@ footer img{height:62px;width:auto;margin-left:-16px}
   [vs, ps, ns, hd].forEach(function(el){ el.addEventListener("input", calcula); });
   calcula();
 
-  /* ---------- Reserva (solo diseño) ----------
-     Pendiente de conectar con n8n: un webhook que devuelva los huecos libres del calendario
-     de GHL y otro que cree el contacto y la cita. Hasta entonces los huecos son de ejemplo
-     y el envío no guarda nada. */
-  var RESERVA_HUECOS = "", RESERVA_CREAR = "";
+  /* ---------- Reserva ----------
+     Conectada al workflow de n8n "Landing fisio · Reserva diagnóstico (GHL)", que lee los huecos
+     libres del calendario personal de Jorge en GHL y crea el contacto y la cita (30 min, Zoom).
+     construir.js pone aquí la URL del webhook en landing.html. En el Artifact queda vacía:
+     Claude bloquea llamadas externas, así que allí se ven huecos de ejemplo y no se guarda nada. */
+  var RESERVA_URL = "https://n8n-n8n.gactp4.easypanel.host/webhook/landing-fisio";
+  var real = /^https:\/\//.test(RESERVA_URL);
   var MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
   var DIAS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
   var hoy = new Date(); hoy.setHours(0,0,0,0);
   var limite = new Date(hoy); limite.setDate(limite.getDate() + 35);
   var vista = new Date(hoy.getFullYear(), hoy.getMonth(), 1), mes0 = new Date(vista);
-  var sel = {dia:null, hora:null};
+  var sel = {dia:null, hora:null}, agenda = {}, cargando = real;
 
-  function huecos(d){
-    var wd = d.getDay();
-    if (wd === 0 || wd === 6 || d <= hoy || d > limite) return [];
-    var base = ["16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30"], s = d.getDate() * 7 + d.getMonth() * 3;
-    return base.filter(function(h, i){ return (s + i * 5) % 4 !== 0; });
+  function clave(d){ return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function ejemplo(){
+    agenda = {};
+    for (var i = 1; i <= 35; i++){
+      var d = new Date(hoy); d.setDate(d.getDate() + i);
+      var wd = d.getDay(); if (wd === 0 || wd === 6) continue;
+      var s = d.getDate() * 7 + d.getMonth() * 3;
+      agenda[clave(d)] = ["15:00","16:00","17:00","18:00","19:00"].filter(function(h, j){ return (s + j * 5) % 4 !== 0; }).map(function(h){ return {h:h, iso:null}; });
+    }
   }
+  function huecos(d){ return agenda[clave(d)] || []; }
   function fechaTxt(d){ var n = DIAS[d.getDay()]; return n.charAt(0).toUpperCase() + n.slice(1) + ", " + d.getDate() + " de " + MESES[d.getMonth()]; }
   function mismo(a, b){ return a && b && a.getTime() === b.getTime(); }
 
@@ -975,15 +983,35 @@ footer img{height:62px;width:auto;margin-left:-16px}
   }
   function pintaHoras(){
     var s = $("slots"); s.innerHTML = "";
-    if (!sel.dia){ $("diaTxt").textContent = "Elige un día"; $("seguir").disabled = true; return; }
+    if (cargando){ $("diaTxt").textContent = "Cargando huecos libres..."; $("seguir").disabled = true; return; }
+    if (!sel.dia){ $("diaTxt").textContent = Object.keys(agenda).length ? "Elige un día" : "Ahora mismo no hay huecos libres. Escríbenos a jorge@elevationmove.com"; $("seguir").disabled = true; return; }
     $("diaTxt").innerHTML = "<b>" + fechaTxt(sel.dia) + "</b>Huecos libres";
-    huecos(sel.dia).forEach(function(h){
-      var b = document.createElement("button"); b.type = "button"; b.textContent = h;
-      if (sel.hora === h) b.className = "sel";
-      b.addEventListener("click", function(){ sel.hora = h; pintaHoras(); });
+    huecos(sel.dia).forEach(function(x){
+      var b = document.createElement("button"); b.type = "button"; b.textContent = x.h;
+      if (sel.hora && sel.hora.h === x.h) b.className = "sel";
+      b.addEventListener("click", function(){ sel.hora = x; pintaHoras(); });
       s.appendChild(b);
     });
     $("seguir").disabled = !sel.hora;
+  }
+  function primerDia(){
+    sel.dia = null; sel.hora = null;
+    var ks = Object.keys(agenda).filter(function(k){ return agenda[k].length; }).sort();
+    if (ks.length){ var p = ks[0].split("-"); sel.dia = new Date(+p[0], +p[1] - 1, +p[2]); vista = new Date(sel.dia.getFullYear(), sel.dia.getMonth(), 1); }
+    pintaMes(); pintaHoras();
+  }
+  function cargar(){
+    if (!real){ ejemplo(); cargando = false; primerDia(); return Promise.resolve(); }
+    cargando = true; pintaHoras();
+    return fetch(RESERVA_URL, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({accion:"huecos"})})
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        agenda = {};
+        (j.dias || []).forEach(function(d){ agenda[d.fecha] = d.horas.map(function(h, i){ return {h:h, iso:d.iso[i]}; }); });
+        var ks = Object.keys(agenda).sort(); if (ks.length){ var u = ks[ks.length - 1].split("-"); limite = new Date(+u[0], +u[1] - 1, +u[2]); }
+      })
+      .catch(function(){ agenda = {}; })
+      .then(function(){ cargando = false; primerDia(); });
   }
   function paso(n){
     $("paso1").hidden = n !== 1; $("paso2").hidden = n !== 2; $("paso3").hidden = n !== 3;
@@ -993,30 +1021,39 @@ footer img{height:62px;width:auto;margin-left:-16px}
   $("mesAnt").addEventListener("click", function(){ vista = new Date(vista.getFullYear(), vista.getMonth() - 1, 1); pintaMes(); });
   $("mesSig").addEventListener("click", function(){ vista = new Date(vista.getFullYear(), vista.getMonth() + 1, 1); pintaMes(); });
   $("seguir").addEventListener("click", function(){
-    $("resTxt").textContent = fechaTxt(sel.dia) + ", " + sel.hora; paso(2); $("f_nombre").focus({preventScroll:true});
+    $("resTxt").textContent = fechaTxt(sel.dia) + ", " + sel.hora.h; $("errTxt").textContent = ""; paso(2); $("f_nombre").focus({preventScroll:true});
   });
   $("cambiar").addEventListener("click", function(){ paso(1); });
-  $("otra").addEventListener("click", function(){ paso(1); });
+  $("otra").addEventListener("click", function(){ paso(1); cargar(); });
+  var enviando = false;
   $("paso2").addEventListener("submit", function(ev){
     ev.preventDefault();
+    if (enviando) return;
     var f = ev.target, mal = f.querySelector(":invalid");
     if (mal){
       $("errTxt").textContent = mal.type === "checkbox" ? "Falta aceptar la política de privacidad." : mal.type === "radio" ? "Dinos cuántos fisios sois." : mal.type === "email" && mal.value ? "Revisa el email." : "Rellena todos los campos para confirmar.";
       mal.focus(); return;
     }
     $("errTxt").textContent = "";
-    $("finTxt").textContent = fechaTxt(sel.dia) + " a las " + sel.hora;
-    paso(3);
+    var listo = function(cuando){ $("finTxt").textContent = cuando; $("notaDemo").hidden = real; paso(3); };
+    if (!real){ listo(fechaTxt(sel.dia) + " a las " + sel.hora.h); return; }
+    var boton = f.querySelector("button[type=submit]"), texto = boton.innerHTML;
+    enviando = true; boton.disabled = true; boton.textContent = "Reservando...";
+    var eq = f.querySelector("input[name=equipo]:checked");
+    fetch(RESERVA_URL, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({
+      accion:"reservar", inicio:sel.hora.iso, nombre:$("f_nombre").value, clinica:$("f_clinica").value,
+      telefono:$("f_tel").value, email:$("f_email").value, equipo:eq ? eq.value : "", web:$("f_web").value })})
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if (j.ok){ listo(j.cuando || (fechaTxt(sel.dia) + " a las " + sel.hora.h)); return; }
+        $("errTxt").textContent = j.error || "No se ha podido reservar. Inténtalo otra vez.";
+        if (j.ocupado){ cargar().then(function(){ paso(1); $("diaTxt").insertAdjacentHTML("afterbegin", "<b>Ese hueco se acaba de ocupar. Elige otro.</b>"); }); }
+      })
+      .catch(function(){ $("errTxt").textContent = "No hay conexión con la agenda. Escríbenos a jorge@elevationmove.com"; })
+      .then(function(){ enviando = false; boton.disabled = false; boton.innerHTML = texto; });
   });
 
-  // Primer día con huecos, ya seleccionado
-  (function(){
-    for (var d = new Date(hoy), i = 0; i < 40; i++){
-      d = new Date(d); d.setDate(d.getDate() + 1);
-      if (huecos(d).length){ sel.dia = d; vista = new Date(d.getFullYear(), d.getMonth(), 1); break; }
-    }
-    pintaMes(); pintaHoras();
-  })();
+  cargar();
 })();
 </script>
 </body>
