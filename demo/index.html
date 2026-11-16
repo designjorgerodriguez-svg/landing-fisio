@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="robots" content="noindex, nofollow">
-<title>Recepción de prueba</title>
-<meta property="og:title" content="Tu recepcionista de prueba">
+<title>Asistente de prueba</title>
+<meta property="og:title" content="Tu asistente de prueba">
 <meta property="og:description" content="Escríbele como lo haría un paciente: pedir, cambiar o cancelar una cita.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#FFFFFF">
@@ -121,7 +121,7 @@ body{background:#D1D7DB;color:var(--texto);font-family:Roboto,"Helvetica Neue",-
   <div class="firma">Demo preparada por Jorge · Elevation Move</div>
 
   <footer class="pie" id="pie">
-    <p>¿Te gustaría tenerla en el WhatsApp de tu clínica, conectada a tu agenda?</p>
+    <p>¿Te gustaría tenerlo en el WhatsApp de tu clínica, conectado a tu agenda?</p>
     <a id="jorge" href="#" target="_blank" rel="noopener">Hablar con Jorge</a>
   </footer>
 
@@ -216,7 +216,7 @@ body{background:#D1D7DB;color:var(--texto);font-family:Roboto,"Helvetica Neue",-
   }
   function pie() {
     if (!WHATSAPP_JORGE) return;
-    var msg = "Hola Jorge! He probado la recepcionista de " + clinica + " y quería preguntarte una cosa";
+    var msg = "Hola Jorge! He probado el asistente de " + clinica + " y quería preguntarte una cosa";
     $("jorge").href = "https://wa.me/" + WHATSAPP_JORGE + "?text=" + encodeURIComponent(msg);
     $("pie").style.display = "flex";
   }
@@ -277,7 +277,7 @@ body{background:#D1D7DB;color:var(--texto);font-family:Roboto,"Helvetica Neue",-
       $("avatar").textContent = iniciales(clinica);
       pie();
       setTimeout(function () {
-        burbuja("Hola, soy la asistente virtual de " + clinica + ". ¿En qué te puedo ayudar?", "in");
+        burbuja("Hola, soy el asistente virtual de " + clinica + ". ¿En qué te puedo ayudar?", "in");
       }, 600);
     })
     .catch(invalido);
