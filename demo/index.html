@@ -136,7 +136,10 @@ body{background:#D1D7DB;color:var(--texto);font-family:Roboto,"Helvetica Neue",-
   var API = "https://n8n-n8n.gactp4.easypanel.host/webhook/demo-clinica";
   var WHATSAPP_JORGE = "34689934758";
   var params = new URLSearchParams(location.search);
-  var cid = (params.get("c") || "").replace(/[^\w-]/g, "").slice(0, 40);
+  // Vale /demo/?c=<cid> (enlaces antiguos) y /demo/<cid> (lo sirve 404.html en GitHub Pages).
+  var ruta = location.pathname.match(/^\/demo\/([^\/?#]+)\/?$/);
+  if (!params.get("c") && !ruta && !/^\/demo\/?$/.test(location.pathname)) { location.replace("/"); return; }
+  var cid = (params.get("c") || (ruta ? decodeURIComponent(ruta[1]) : "") || "").replace(/[^\w-]/g, "").slice(0, 40);
   var $ = function (id) { return document.getElementById(id); };
   var chat = $("chat"), escribiendo = $("escribiendo"), texto = $("texto"), enviar = $("enviar");
   var ocupado = false, clinica = "", ultimo = "";
