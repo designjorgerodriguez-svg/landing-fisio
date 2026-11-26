@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Alta del centro · Elevation Move</title>
+<style>
+@font-face { font-family: 'Sora'; src: url('Sora-Variable.ttf') format('truetype'); font-weight: 100 800; font-display: swap; }
+:root {
+  --negro: #111315; --lima: #A8FF00; --hueso: #F2F0E9; --blanco: #FFFFFF;
+  --tinta: #121110; --gris: #5E5C57; --linea: #D9D6CC; --campo: #FBFAF6; --aviso: #B42318;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; font-family: 'Sora', system-ui, sans-serif; background: var(--hueso); color: var(--tinta); font-size: 16px; line-height: 1.5; }
+button, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--lima); outline-offset: 2px; }
+
+/* Cabecera negra */
+.cab { background: var(--negro); color: var(--blanco); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; padding: 12px 20px 0; padding-top: max(12px, env(safe-area-inset-top)); }
+.cab-fila { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 600px; margin: 0 auto; }
+.cab img { height: 26px; width: auto; display: block; }
+.guardado { font-size: 12px; font-weight: 300; color: #C9C9C9; text-align: right; }
+.guardado b { color: var(--lima); font-weight: 500; }
+.barra { max-width: 600px; margin: 12px auto 0; height: 4px; background: #2A2D30; border-radius: 2px 2px 0 0; overflow: hidden; }
+.barra i { display: block; height: 100%; width: 0; background: var(--lima); transition: width .3s ease; }
+
+main { max-width: 600px; margin: 0 auto; padding: 24px 20px 120px; }
+h1 { font-weight: 700; font-size: 28px; line-height: 1.15; letter-spacing: -0.01em; margin: 0 0 12px; }
+h2 { font-weight: 700; font-size: 24px; line-height: 1.2; margin: 0 0 8px; }
+.intro { color: var(--gris); margin: 0 0 24px; }
+
+/* Aviso de guardado */
+.calma { background: #E9E6DC; color: var(--tinta); border-radius: 12px; padding: 14px 16px; margin: 0 0 28px; font-size: 15px; }
+.calma p { margin: 0; }
+.calma p + p { margin-top: 6px; color: var(--gris); font-weight: 300; }
+.calma strong { font-weight: 600; }
+
+/* Índice de bloques */
+.indice { list-style: none; padding: 0; margin: 0 0 28px; border-top: 1px solid var(--linea); }
+.indice button { width: 100%; display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 12px; background: none; border: 0; border-bottom: 1px solid var(--linea); padding: 16px 2px; text-align: left; cursor: pointer; }
+.indice .n { font-weight: 300; color: var(--gris); font-size: 15px; }
+.indice .t { font-weight: 500; }
+.indice .t small { display: block; font-weight: 300; font-size: 13px; color: var(--gris); }
+.estado { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 999px; white-space: nowrap; border: 1px solid var(--linea); color: var(--gris); }
+.estado.medias { border-color: var(--tinta); color: var(--tinta); }
+.estado.hecho { background: var(--lima); border-color: var(--lima); color: var(--tinta); }
+
+/* Campos */
+.campo { margin: 0 0 22px; }
+.campo > label, .campo > .et { display: block; font-weight: 500; margin: 0 0 6px; }
+.oblig { color: var(--aviso); font-weight: 500; font-size: 13px; margin-left: 4px; }
+.ayuda { font-size: 14px; color: var(--gris); font-weight: 300; margin: -2px 0 8px; }
+input[type=text], input[type=email], input[type=tel], textarea {
+  width: 100%; font-size: 16px; padding: 12px 14px; background: var(--campo); border: 1.5px solid var(--linea); border-radius: 10px; transition: border-color .15s;
+}
+textarea { min-height: 92px; resize: vertical; }
+input:focus, textarea:focus { border-color: var(--tinta); outline: none; box-shadow: 0 0 0 3px rgba(168,255,0,.55); }
+::placeholder { color: #A3A098; font-weight: 300; }
+.falta input, .falta textarea { border-color: var(--aviso); }
+
+/* Opciones */
+.opciones { display: grid; gap: 8px; }
+.op { display: flex; gap: 12px; align-items: flex-start; padding: 13px 14px; background: var(--campo); border: 1.5px solid var(--linea); border-radius: 10px; cursor: pointer; }
+.op input { margin: 3px 0 0; width: 20px; height: 20px; accent-color: var(--tinta); flex: none; }
+.op span { display: block; }
+.op small { display: block; color: var(--gris); font-weight: 300; font-size: 14px; margin-top: 2px; }
+.op:has(input:checked) { border-color: var(--tinta); background: var(--blanco); }
+.op .reco { display: inline-block; background: var(--lima); color: var(--tinta); font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: 1px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips .op { padding: 10px 14px; align-items: center; }
+.chips .op input { margin: 0; }
+
+/* Coste de Meta */
+.coste { border: 1.5px solid var(--tinta); border-radius: 12px; padding: 14px 16px; margin: 0 0 22px; background: var(--blanco); font-size: 15px; }
+.coste b { font-weight: 600; }
+.coste .precio { display: inline-block; background: var(--lima); padding: 1px 8px; border-radius: 6px; font-weight: 600; }
+.coste p { margin: 0; }
+.coste p + p { margin-top: 6px; color: var(--gris); font-weight: 300; font-size: 14px; }
+
+/* Horario */
+.horario { display: grid; gap: 8px; }
+.dia { display: grid; grid-template-columns: 82px 1fr; align-items: center; gap: 10px; }
+.dia span { font-weight: 500; font-size: 15px; }
+.dia input { padding: 10px 12px; }
+
+/* Repetibles */
+.item { border: 1.5px solid var(--linea); border-radius: 12px; padding: 14px 14px 2px; margin: 0 0 10px; background: rgba(255,255,255,.45); }
+.item-cab { display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px; font-weight: 600; font-size: 15px; }
+.quitar { background: none; border: 0; color: var(--gris); font-size: 14px; text-decoration: underline; cursor: pointer; padding: 4px; }
+.item .campo { margin-bottom: 12px; }
+.item .campo > label { font-size: 14px; }
+.mitades { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.anadir { width: 100%; padding: 13px; border: 1.5px dashed var(--tinta); border-radius: 10px; background: none; font-weight: 500; cursor: pointer; }
+
+/* Botones */
+.pie { position: fixed; left: 0; right: 0; bottom: 0; background: var(--hueso); border-top: 1px solid var(--linea); padding: 12px 20px; padding-bottom: max(12px, env(safe-area-inset-bottom)); z-index: 10; }
+.pie-fila { max-width: 600px; margin: 0 auto; display: flex; gap: 10px; }
+.btn { flex: 1; padding: 14px 16px; border-radius: 12px; border: 1.5px solid var(--tinta); background: none; font-weight: 600; cursor: pointer; font-size: 16px; }
+.btn.prim { background: var(--negro); color: var(--blanco); border-color: var(--negro); }
+.btn.lima { background: var(--lima); border-color: var(--lima); color: var(--tinta); }
+.btn:disabled { opacity: .45; cursor: default; }
+
+.errores { background: #FDECEA; border-radius: 12px; padding: 14px 16px; margin: 0 0 20px; font-size: 15px; }
+.errores p { margin: 0 0 6px; font-weight: 600; }
+.errores button { background: none; border: 0; padding: 2px 0; text-decoration: underline; cursor: pointer; color: var(--aviso); display: block; text-align: left; }
+.prueba { font-size: 14px; color: var(--gris); margin: 12px 0 0; }
+.fin { text-align: left; padding-top: 24px; }
+.fin .sello { width: 56px; height: 56px; border-radius: 50%; background: var(--lima); display: grid; place-items: center; margin: 0 0 20px; }
+
+@media (min-width: 640px) {
+  main { padding-top: 40px; }
+  h1 { font-size: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="cab">
+  <div class="cab-fila">
+    <img src="logo.png" alt="Elevation Move">
+    <div class="guardado" id="guardado" aria-live="polite">Se guarda solo</div>
+  </div>
+  <div class="barra" aria-hidden="true"><i id="barra"></i></div>
+</header>
+<main id="app"></main>
+<div class="pie"><div class="pie-fila" id="pie"></div></div>
+
+<script>
+// Configuración por cliente
+const CONFIG = {
+  centro: 'Focus Clinic Cañaveral',
+  agenda: 'Clinni',
+  clave: 'alta-focus-clinic-canaveral',
+  precioPlantilla: '0,017 €',   // tarifa de utilidad de Meta para España, noviembre de 2026
+  endpoint: 'https://n8n-n8n.gactp4.easypanel.host/webhook/alta-centro'                  // webhook de n8n (alta-centro); se rellena al publicar en la web
+};
+// Cada centro recibe su enlace con ?c=<token>; sin token no se sincroniza nada
+const TOKEN = (() => { try { return new URLSearchParams(location.search).get('c') || ''; } catch (e) { return ''; } })();
+const SYNC = !!(CONFIG.endpoint && /^[a-f0-9]{32}$/.test(TOKEN));
+
+const COSTE = (que) => ({ t: 'coste', html:
+  `<p>${que} se envía con lo que WhatsApp llama <b>plantilla</b>: un mensaje que manda la empresa sin que el otro haya escrito antes. Meta cobra cada plantilla aparte de la cuota: <span class="precio">unos ${CONFIG.precioPlantilla}</span> por mensaje.</p><p>Lo paga el centro directamente a Meta, y en el informe mensual os decimos cuánto ha sido.</p>` });
+
+const BLOQUES = [
+  { id: 'contrato', titulo: 'Datos para el contrato', sub: 'Para preparártelo y enviártelo a firmar', oblig: true,
+    intro: 'Con esto rellenamos el contrato y te lo mandamos para firmar desde el móvil.',
+    campos: [
+      { k: 'razon_social', l: 'Nombre fiscal (razón social)', req: 1 },
+      { k: 'nif', l: 'NIF o CIF', req: 1 },
+      { k: 'domicilio', l: 'Domicilio fiscal', req: 1 },
+      { k: 'firmante', l: 'Nombre y apellidos de quien firma', req: 1 },
+      { k: 'dni', l: 'DNI de quien firma', req: 1 },
+      { k: 'cargo', l: 'Cargo', ph: 'Por ejemplo, administrador', req: 1 },
+      { k: 'email', l: 'Correo para firmar y recibir avisos', t: 'email', req: 1 },
+      { k: 'whatsapp', l: 'Número de WhatsApp del centro', t: 'tel', req: 1, ayuda: 'El que va a atender el asistente.' },
+    ] },
+  { id: 'centro', titulo: 'El centro', sub: 'Dirección, horario y cierres',
+    intro: 'Lo que el asistente contesta cuando un paciente pregunta dónde estáis o a qué hora abrís.',
+    campos: [
+      { k: 'direccion', l: 'Dirección' },
+      { k: 'llegar', l: 'Cómo llegar y aparcamiento', t: 'area', ph: 'Metro, autobús, si hay sitio para aparcar...' },
+      { k: 'horario', l: 'Horario de apertura', t: 'horario', ayuda: 'Dejad en blanco los días que cerráis.' },
+      { k: 'cierres', l: 'Cierres y vacaciones previstas', t: 'area', ph: 'Festivos, Navidad, agosto...' },
+    ] },
+  { id: 'profesionales', titulo: 'Profesionales', sub: 'Quién atiende y qué hace cada uno',
+    intro: `Los horarios de cada uno los saca el asistente de vuestra agenda de ${CONFIG.agenda}. Aquí solo necesitamos saber quién es quién.`,
+    campos: [
+      { k: 'profesionales', t: 'lista', item: 'Profesional', anadir: 'Añadir profesional',
+        sub: [{ k: 'nombre', l: 'Nombre' }, { k: 'especialidad', l: 'Especialidad' }, { k: 'servicios', l: 'Qué servicios hace', t: 'area' }] },
+      { k: 'elegir', l: '¿El paciente puede elegir con quién?', t: 'radio', o: ['Sí, siempre', 'Sí, si tiene hueco', 'No, lo asigna el centro'] },
+    ] },
+  { id: 'servicios', titulo: 'Servicios y precios', sub: 'Servicios, bonos y primera visita',
+    intro: 'Para que el asistente reserve el servicio correcto y conteste a la pregunta de cuánto cuesta.',
+    campos: [
+      { k: 'servicios', t: 'lista', item: 'Servicio', anadir: 'Añadir servicio', mitades: ['duracion', 'precio'],
+        sub: [{ k: 'nombre', l: 'Servicio' }, { k: 'duracion', l: 'Duración', ph: '45 min' }, { k: 'precio', l: 'Precio', ph: '45 €' }] },
+      { k: 'primera', l: 'Primera visita o valoración', t: 'area', ph: 'Si es distinta: duración, precio y qué incluye' },
+      { k: 'bonos', t: 'lista', item: 'Bono', anadir: 'Añadir bono', mitades: ['sesiones', 'precio', 'caducidad'],
+        sub: [{ k: 'nombre', l: 'Bono' }, { k: 'sesiones', l: 'Sesiones', ph: '5' }, { k: 'precio', l: 'Precio', ph: '200 €' }, { k: 'caducidad', l: 'Caduca a los', ph: '3 meses' }] },
+      { k: 'no_whatsapp', l: 'Servicios que no se reservan por WhatsApp', t: 'area', ph: 'Por ejemplo, los que necesitan una valoración antes' },
+    ] },
+  { id: 'citas', titulo: 'Reglas de citas', sub: 'Antelación, cancelaciones y pagos',
+    intro: 'Las normas que ya aplicáis, para que el asistente diga lo mismo que diríais vosotros.',
+    campos: [
+      { k: 'antelacion', l: 'Antelación mínima para reservar', ph: 'Por ejemplo, 2 horas' },
+      { k: 'cancelacion', l: 'Política de cancelación', t: 'area', ph: 'Con cuánto tiempo se puede cancelar y qué pasa si no avisan' },
+      { k: 'datos_nuevo', l: 'Datos que pedís a un paciente nuevo', t: 'area', ph: 'Nombre completo, teléfono, correo...' },
+      { k: 'mutuas', l: 'Mutuas o seguros con los que trabajáis', t: 'area', ph: 'Si no trabajáis con ninguna, déjalo en blanco' },
+      { k: 'pago', l: 'Formas de pago', t: 'checks', o: ['Efectivo', 'Tarjeta', 'Bizum', 'Transferencia'] },
+    ] },
+  { id: 'avisos', titulo: 'Avisos al equipo', sub: 'A quién pasa el asistente lo que no debe contestar', oblig: true,
+    intro: 'Cuando llega algo que el asistente no debe contestar (una duda clínica, una queja, un caso raro), pasa la conversación a una persona del centro con un resumen del motivo.',
+    campos: [
+      { k: 'aviso_medio', l: '¿Cómo queréis recibir los avisos?', t: 'radio', req: 1, o: [
+        { v: 'Por WhatsApp y en el panel', d: 'Os llega un WhatsApp al móvil al momento y queda apuntado en el panel.' },
+        { v: 'Solo en el panel', d: 'Sin coste extra. Los veis cuando entráis al panel.' }] },
+      { ...COSTE('Cada aviso por WhatsApp al móvil'), si: { k: 'aviso_medio', v: 'Por WhatsApp y en el panel' } },
+      { k: 'aviso_nombre', l: '¿A quién le llega el aviso?', ph: 'Nombre', req: 1, si: { k: 'aviso_medio', v: 'Por WhatsApp y en el panel' } },
+      { k: 'aviso_movil', l: 'Su móvil', t: 'tel', req: 1, si: { k: 'aviso_medio', v: 'Por WhatsApp y en el panel' } },
+      { k: 'fuera_horario', l: 'Fuera del horario del centro, el asistente...', t: 'radio', si: { k: 'aviso_medio', v: 'Por WhatsApp y en el panel' }, o: [
+        'Atiende igual y deja los avisos para cuando abráis', 'Atiende igual y avisa al momento', 'Otra cosa'] },
+      { k: 'fuera_horario_otro', l: 'Contadnos qué preferís', t: 'area', si: { k: 'fuera_horario', v: 'Otra cosa' } },
+    ] },
+  { id: 'tono', titulo: 'Cómo habla y qué no dice', sub: 'Trato, idiomas y temas que no toca',
+    intro: 'Para que los mensajes suenen a vuestro centro y el asistente sepa dónde parar.',
+    campos: [
+      { k: 'trato', l: 'Trato con los pacientes', t: 'radio', o: ['De tú', 'De usted'] },
+      { k: 'nombre_asistente', l: 'Nombre del asistente', ph: 'Opcional', ayuda: 'Siempre se presenta como asistente virtual del centro, con nombre o sin él.' },
+      { k: 'idiomas', l: 'Idiomas', t: 'checks', o: ['Español', 'Inglés', 'Otro'] },
+      { k: 'saludo', l: 'Un mensaje vuestro de ejemplo', t: 'area', ph: 'Copiad cómo contestáis normalmente por WhatsApp. Nos sirve para imitar el tono.' },
+      { k: 'nunca', l: 'Temas que no debe contestar nunca', t: 'area', ayuda: 'Las dudas clínicas ya las pasa siempre al equipo.' },
+      { k: 'urgencia', l: 'Qué decir ante una urgencia', t: 'area', ph: 'Por ejemplo, que llamen al 112 o al teléfono del centro' },
+    ] },
+  { id: 'recordatorios', titulo: 'Recordatorios de cita', sub: 'El aviso antes de cada cita',
+    intro: 'Antes de cada cita, el asistente escribe al paciente para recordársela.',
+    campos: [
+      COSTE('Cada recordatorio'),
+      { k: 'rec_activar', l: '¿Enviamos recordatorios?', t: 'radio', o: ['Sí', 'No'] },
+      { k: 'rec_cuando', l: '¿Cuándo salen?', t: 'radio', si: { k: 'rec_activar', v: 'Sí' }, o: [
+        { v: '24 horas antes de la cita', d: 'Cada paciente lo recibe un día antes, a la misma hora que su cita.' },
+        { v: 'El día antes, a una hora fija', d: 'Salen todos juntos a la hora que elijáis.' }] },
+      { k: 'rec_hora', l: '¿A qué hora salen?', ph: 'Por ejemplo, a las 10:00', si: { k: 'rec_cuando', v: 'El día antes, a una hora fija' } },
+      { k: 'rec_tipo', l: 'Tipo de recordatorio', t: 'radio', si: { k: 'rec_activar', v: 'Sí' }, o: [
+        { v: 'Con botones para confirmar o cambiar', d: 'El paciente pulsa «Confirmo» o «Necesito cambiarla» y, si la cambia, el asistente le ofrece otro hueco. Mismo coste que sin botones.', reco: 1 },
+        { v: 'Solo el recordatorio, sin botones', d: 'Si el paciente quiere cambiarla, tiene que escribir.' }] },
+    ] },
+  { id: 'preguntas', titulo: 'Preguntas frecuentes', sub: 'Las que más os hacen',
+    intro: 'Las que más os repiten por WhatsApp, con la respuesta que dais normalmente. Con cinco o seis basta.',
+    campos: [
+      { k: 'preguntas', t: 'lista', item: 'Pregunta', anadir: 'Añadir pregunta',
+        sub: [{ k: 'pregunta', l: 'Pregunta' }, { k: 'respuesta', l: 'Lo que contestáis', t: 'area' }] },
+    ] },
+  { id: 'preparativos', titulo: 'Preparativos', sub: 'WhatsApp, agenda y videollamada',
+    intro: 'Lo que hace falta tener listo para la videollamada en la que conectamos el número.',
+    campos: [
+      { k: 'wa_business', l: '¿Usáis ya WhatsApp Business en el número del centro?', t: 'radio', o: ['Sí', 'No', 'No lo sé'] },
+      { k: 'usuario_agenda', l: `Usuario de ${CONFIG.agenda} para el asistente`, t: 'radio', o: ['Ya está creado', 'Lo creamos juntos en la videollamada'],
+        ayuda: 'Un usuario sin acceso a historias clínicas.' },
+      { k: 'franjas', l: 'Días y horas que os vienen bien para la videollamada', t: 'area', ph: 'Por ejemplo, martes y jueves por la tarde' },
+      { k: 'otros', l: '¿Algo más que debamos saber?', t: 'area' },
+    ] },
+];
+const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+// Estado guardado en el dispositivo
+let datos = {};
+try { datos = JSON.parse(localStorage.getItem(CONFIG.clave)) || {}; } catch (e) { datos = {}; }
+let vista = 'inicio', faltan = [], enviado = !!datos._enviado;
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function guardar() {
+  datos._actualizado = new Date().toISOString();
+  try { localStorage.setItem(CONFIG.clave, JSON.stringify(datos)); } catch (e) {}
+  const h = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  $('#guardado').innerHTML = `<b>Guardado</b> a las ${h}`;
+  progreso();
+  clearTimeout(guardar.t); guardar.t = setTimeout(() => sincronizar('guardar'), 2500);
+}
+
+// Copia en el servidor para poder seguir desde otro dispositivo
+function sincronizar(accion) {
+  if (!SYNC) return Promise.resolve(null);
+  clearTimeout(guardar.t);
+  return fetch(CONFIG.endpoint, { method: 'POST', keepalive: accion !== 'enviar', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ accion, token: TOKEN, datos: accion === 'cargar' ? undefined : datos }) })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && guardar.t) sincronizar('guardar').catch(() => {}); });
+
+// Qué cuenta como rellenado
+function lleno(c) {
+  const v = datos[c.k];
+  if (c.t === 'lista') return Array.isArray(v) && v.some(it => Object.values(it || {}).some(x => String(x).trim()));
+  if (c.t === 'horario') return v && Object.values(v).some(x => String(x).trim());
+  if (c.t === 'checks') return Array.isArray(v) && v.length > 0;
+  return v != null && String(v).trim() !== '';
+}
+// Campos que dependen de la respuesta a otro
+const TODOS = BLOQUES.flatMap(b => b.campos);
+function visible(c) {
+  if (!c.si) return true;
+  const padre = TODOS.find(x => x.k === c.si.k);
+  if (padre && !visible(padre)) return false;
+  return datos[c.si.k] === c.si.v;
+}
+const controla = k => TODOS.some(c => c.si && c.si.k === k);
+const camposDe = b => b.campos.filter(c => c.k && visible(c));
+function estado(b) {
+  const cs = camposDe(b), n = cs.filter(lleno).length;
+  const reqOk = cs.filter(c => c.req).every(lleno);
+  if (n === 0) return ['', 'Sin empezar'];
+  if (n === cs.length || (b.oblig && reqOk && n >= cs.filter(c => c.req).length)) return ['hecho', 'Hecho'];
+  return ['medias', 'A medias'];
+}
+function progreso() {
+  const total = BLOQUES.reduce((a, b) => a + camposDe(b).length, 0);
+  const hechos = BLOQUES.reduce((a, b) => a + camposDe(b).filter(lleno).length, 0);
+  $('#barra').style.width = Math.round(hechos / total * 100) + '%';
+}
+
+// Pintado de campos
+function etiqueta(c, id) {
+  return `<label for="${id}">${esc(c.l)}${c.req ? '<span class="oblig">obligatorio</span>' : ''}</label>${c.ayuda ? `<p class="ayuda">${esc(c.ayuda)}</p>` : ''}`;
+}
+function input(c, id, valor, attrs = '') {
+  const ph = c.ph ? ` placeholder="${esc(c.ph)}"` : '';
+  if (c.t === 'area') return `<textarea id="${id}"${ph} ${attrs}>${esc(valor)}</textarea>`;
+  const tipo = c.t === 'email' ? 'email' : c.t === 'tel' ? 'tel' : 'text';
+  const extra = c.t === 'email' ? ' autocomplete="email" inputmode="email"' : c.t === 'tel' ? ' autocomplete="tel" inputmode="tel"' : '';
+  return `<input type="${tipo}" id="${id}" value="${esc(valor)}"${ph}${extra} ${attrs}>`;
+}
+function campo(c) {
+  if (!visible(c)) return '';
+  if (c.t === 'coste') return `<div class="coste">${c.html}</div>`;
+  const id = 'f_' + c.k, falta = faltan.includes(c.k) && !lleno(c) ? ' falta' : '';
+  if (c.t === 'radio' || c.t === 'checks') {
+    const tipo = c.t === 'radio' ? 'radio' : 'checkbox';
+    const ops = c.o.map(o => typeof o === 'string' ? { v: o } : o);
+    const sel = datos[c.k];
+    const marcado = v => tipo === 'radio' ? sel === v : Array.isArray(sel) && sel.includes(v);
+    return `<fieldset class="campo${falta}" style="border:0;padding:0;margin:0 0 22px">
+      <legend class="et" style="font-weight:500;margin:0 0 8px;padding:0">${esc(c.l)}${c.req ? '<span class="oblig">obligatorio</span>' : ''}</legend>
+      ${c.ayuda ? `<p class="ayuda">${esc(c.ayuda)}</p>` : ''}
+      <div class="${c.t === 'checks' ? 'chips' : 'opciones'}">${ops.map(o => `
+        <label class="op"><input type="${tipo}" name="${c.k}" value="${esc(o.v)}" data-k="${c.k}" data-t="${c.t}" ${marcado(o.v) ? 'checked' : ''}>
+        <span>${esc(o.v)}${o.reco ? '<span class="reco">Recomendado</span>' : ''}${o.d ? `<small>${esc(o.d)}</small>` : ''}</span></label>`).join('')}
+      </div></fieldset>`;
+  }
+  if (c.t === 'horario') {
+    const h = datos[c.k] || {};
+    return `<div class="campo"><span class="et">${esc(c.l)}</span>${c.ayuda ? `<p class="ayuda">${esc(c.ayuda)}</p>` : ''}
+      <div class="horario">${DIAS.map(d => `<label class="dia"><span>${d}</span>
+        <input type="text" data-horario="${c.k}" data-dia="${d}" value="${esc(h[d])}" placeholder="9:00 a 14:00 y 16:00 a 21:00"></label>`).join('')}</div></div>`;
+  }
+  if (c.t === 'lista') {
+    let items = Array.isArray(datos[c.k]) && datos[c.k].length ? datos[c.k] : [{}];
+    return `<div class="campo">${items.map((it, i) => {
+      const subs = c.sub.map(s => {
+        const sid = `${id}_${i}_${s.k}`;
+        return `<div class="campo"><label for="${sid}">${esc(s.l)}</label>${input(s, sid, it[s.k], `data-lista="${c.k}" data-i="${i}" data-s="${s.k}"`)}</div>`;
+      });
+      const enMitad = c.sub.filter(s => (c.mitades || []).includes(s.k)).length;
+      const cuerpo = c.mitades ? subs.filter((_, j) => !c.mitades.includes(c.sub[j].k)).join('') +
+        `<div class="mitades">${subs.filter((_, j) => c.mitades.includes(c.sub[j].k)).join('')}</div>` : subs.join('');
+      return `<div class="item"><div class="item-cab"><span>${esc(c.item)} ${i + 1}</span>
+        ${items.length > 1 ? `<button type="button" class="quitar" data-quitar="${c.k}" data-i="${i}">Quitar</button>` : ''}</div>${cuerpo}</div>`;
+    }).join('')}
+    <button type="button" class="anadir" data-anadir="${c.k}">${esc(c.anadir)}</button></div>`;
+  }
+  return `<div class="campo${falta}">${etiqueta(c, id)}${input(c, id, datos[c.k], `data-k="${c.k}"`)}</div>`;
+}
+
+// Vistas
+function pintarInicio() {
+  const listo = BLOQUES.every(b => camposDe(b).filter(c => c.req).every(lleno));
+  $('#app').innerHTML = `
+    <h1>Alta de ${esc(CONFIG.centro)}</h1>
+    <p class="intro">Todo lo que necesitamos para dejar el asistente configurado como trabajáis vosotros.</p>
+    <div class="calma">
+      <p><strong>No hace falta hacerlo de una vez.</strong> Se guarda solo mientras escribís: podéis cerrar y seguir otro día con este mismo enlace, desde este móvil o desde otro.</p>
+      <p>Solo es obligatorio lo marcado en «Datos para el contrato» y «Avisos al equipo». Lo que no sepáis ahora, dejadlo en blanco y lo vemos juntos en la videollamada.</p>
+    </div>
+    ${faltan.length ? errores() : ''}
+    <ol class="indice">${BLOQUES.map((b, i) => { const [cl, tx] = estado(b); return `
+      <li><button type="button" data-ir="${b.id}"><span class="n">${i + 1}</span>
+        <span class="t">${esc(b.titulo)}<small>${esc(b.sub)}</small></span><span class="estado ${cl}">${tx}</span></button></li>`; }).join('')}
+    </ol>
+    ${enviado ? `<p class="prueba">Ya nos lo enviasteis. Si cambiáis algo, volved a enviarlo y nos llega la versión nueva.</p>` : ''}`;
+  $('#pie').innerHTML = `<button type="button" class="btn prim" data-ir="${primerPendiente()}">${Object.keys(datos).length > 1 ? 'Seguir' : 'Empezar'}</button>
+    <button type="button" class="btn lima" id="enviar">Enviar</button>`;
+}
+function errores() {
+  return `<div class="errores" role="alert"><p>Falta lo obligatorio en:</p>${[...new Set(faltan.map(k => BLOQUES.find(b => b.campos.some(c => c.k === k))))].map(b =>
+    `<button type="button" data-ir="${b.id}">${esc(b.titulo)}</button>`).join('')}</div>`;
+}
+function primerPendiente() {
+  const b = BLOQUES.find(b => estado(b)[0] !== 'hecho');
+  return (b || BLOQUES[0]).id;
+}
+function pintarBloque(id) {
+  const i = BLOQUES.findIndex(b => b.id === id), b = BLOQUES[i];
+  $('#app').innerHTML = `
+    <p class="ayuda" style="margin:0 0 6px">Bloque ${i + 1} de ${BLOQUES.length}</p>
+    <h2>${esc(b.titulo)}</h2><p class="intro">${esc(b.intro)}</p>
+    ${b.campos.map(campo).join('')}`;
+  const sig = BLOQUES[i + 1];
+  $('#pie').innerHTML = `<button type="button" class="btn" data-ir="inicio">Ver todos</button>
+    <button type="button" class="btn prim" data-ir="${sig ? sig.id : 'inicio'}">${sig ? 'Siguiente' : 'Terminar'}</button>`;
+}
+function pintarFin() {
+  $('#app').innerHTML = `<div class="fin">
+    <div class="sello" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#121110" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h1>Recibido, gracias</h1>
+    <p class="intro">Con esto preparamos el contrato y la configuración. Os escribimos por WhatsApp para cerrar la videollamada de conexión.</p>
+    <p class="intro">Si queréis cambiar algo, podéis volver a este enlace: las respuestas siguen guardadas.</p>
+    ${SYNC ? '' : '<p class="prueba">Modo de prueba: el envío todavía no está conectado y las respuestas no han salido de este dispositivo.</p>'}</div>`;
+  $('#pie').innerHTML = `<button type="button" class="btn" data-ir="inicio">Volver a las respuestas</button>`;
+}
+function ir(dest) {
+  if (guardar.t) sincronizar('guardar').catch(() => {});
+  vista = dest;
+  if (dest === 'inicio') pintarInicio(); else if (dest === 'fin') pintarFin(); else pintarBloque(dest);
+  window.scrollTo({ top: 0 });
+}
+
+async function enviar() {
+  faltan = BLOQUES.flatMap(b => camposDe(b).filter(c => c.req && !lleno(c)).map(c => c.k));
+  if (faltan.length) { ir('inicio'); return; }
+  const btn = $('#enviar'); btn.disabled = true; btn.textContent = 'Enviando...';
+  try {
+    datos._enviado = new Date().toISOString();
+    if (SYNC) { const r = await sincronizar('enviar'); if (!r || !r.ok) throw new Error('sin respuesta'); }
+    enviado = true; guardar(); clearTimeout(guardar.t); guardar.t = 0; ir('fin');
+  } catch (e) {
+    delete datos._enviado; btn.disabled = false; btn.textContent = 'Enviar';
+    $('#app').insertAdjacentHTML('afterbegin', '<div class="errores" role="alert"><p>No se ha podido enviar.</p>Las respuestas siguen guardadas. Probad de nuevo en un momento o escribidnos por WhatsApp.</div>'); window.scrollTo({ top: 0 });
+  }
+}
+
+// Eventos
+document.addEventListener('input', e => {
+  const el = e.target, d = el.dataset;
+  if (d.lista) {
+    const arr = Array.isArray(datos[d.lista]) && datos[d.lista].length ? datos[d.lista] : [{}];
+    arr[+d.i] = { ...(arr[+d.i] || {}), [d.s]: el.value }; datos[d.lista] = arr;
+  } else if (d.horario) {
+    datos[d.horario] = { ...(datos[d.horario] || {}), [d.dia]: el.value };
+  } else if (d.t === 'checks') {
+    datos[d.k] = [...document.querySelectorAll(`input[name="${d.k}"]:checked`)].map(x => x.value);
+  } else if (d.k) {
+    datos[d.k] = el.value;
+  } else return;
+  if (el.closest('.falta') && el.value.trim()) el.closest('.falta').classList.remove('falta');
+  guardar();
+  if (d.t === 'radio' && controla(d.k)) { const y = window.scrollY; pintarBloque(vista); window.scrollTo({ top: y }); }
+});
+document.addEventListener('change', e => { if (e.target.type === 'radio' || e.target.type === 'checkbox') e.target.dispatchEvent(new Event('input', { bubbles: true })); });
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.dataset.ir) ir(t.dataset.ir);
+  else if (t.id === 'enviar') enviar();
+  else if (t.dataset.anadir) {
+    const k = t.dataset.anadir; datos[k] = (Array.isArray(datos[k]) && datos[k].length ? datos[k] : [{}]).concat([{}]);
+    guardar(); pintarBloque(vista);
+    const items = document.querySelectorAll('.item'); items[items.length - 1]?.querySelector('input,textarea')?.focus();
+  } else if (t.dataset.quitar) {
+    const k = t.dataset.quitar; datos[k].splice(+t.dataset.i, 1); guardar(); pintarBloque(vista);
+  }
+});
+
+if (datos._actualizado) {
+  const f = new Date(datos._actualizado);
+  $('#guardado').innerHTML = `<b>Guardado</b> el ${f.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`;
+}
+progreso();
+ir('inicio');
+// Si hay una versión más reciente en el servidor (otro dispositivo), se usa esa
+sincronizar('cargar').then(r => {
+  const remotos = r && r.ok && r.datos;
+  if (!remotos || !remotos._actualizado) return;
+  if (!datos._actualizado || remotos._actualizado > datos._actualizado) {
+    datos = remotos; enviado = !!datos._enviado;
+    try { localStorage.setItem(CONFIG.clave, JSON.stringify(datos)); } catch (e) {}
+    progreso(); ir(vista);
+  }
+}).catch(() => {});
+</script>
+</body>
+</html>
