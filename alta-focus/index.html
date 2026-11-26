@@ -261,12 +261,17 @@ function guardar() {
 }
 
 // Copia en el servidor para poder seguir desde otro dispositivo
+// Las peticiones salen de una en una y en orden, para que un guardado viejo no pise uno nuevo
+let cola = Promise.resolve();
 function sincronizar(accion) {
   if (!SYNC) return Promise.resolve(null);
-  clearTimeout(guardar.t);
-  return fetch(CONFIG.endpoint, { method: 'POST', keepalive: accion !== 'enviar', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ accion, token: TOKEN, datos: accion === 'cargar' ? undefined : datos }) })
+  clearTimeout(guardar.t); guardar.t = 0;
+  const cuerpo = JSON.stringify({ accion, token: TOKEN, datos: accion === 'cargar' ? undefined : datos });
+  const p = cola.catch(() => {}).then(() => fetch(CONFIG.endpoint, { method: 'POST', keepalive: accion !== 'enviar',
+    headers: { 'Content-Type': 'application/json' }, body: cuerpo }))
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+  cola = p;
+  return p;
 }
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && guardar.t) sincronizar('guardar').catch(() => {}); });
 
@@ -411,7 +416,7 @@ async function enviar() {
   if (faltan.length) { ir('inicio'); return; }
   const btn = $('#enviar'); btn.disabled = true; btn.textContent = 'Enviando...';
   try {
-    datos._enviado = new Date().toISOString();
+    datos._enviado = datos._actualizado = new Date().toISOString();
     if (SYNC) { const r = await sincronizar('enviar'); if (!r || !r.ok) throw new Error('sin respuesta'); }
     enviado = true; guardar(); clearTimeout(guardar.t); guardar.t = 0; ir('fin');
   } catch (e) {
